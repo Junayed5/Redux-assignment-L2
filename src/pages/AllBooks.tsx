@@ -7,11 +7,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetAllBooksQuery } from "@/redux/api/baseApi";
+import { useDeleteBookMutation, useGetAllBooksQuery } from "@/redux/api/baseApi";
 
 const AllBooks = () => {
   const { data, isLoading, error } = useGetAllBooksQuery(undefined);
-  console.log({ data, isLoading, error });
+  const [deleteBook] = useDeleteBookMutation();
+  const books = data?.data || [];
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading books</div>;
+  };
+
+  const handleDelete = async (id: string) => {
+    const result = await deleteBook(id);
+    console.log('inside delete', result);
+  }
 
   return (
     <div>
@@ -32,8 +46,8 @@ const AllBooks = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data?.data.map((book: any) => (
-            <TableRow key={book.id}>
+          {books.map((book: any) => (
+            <TableRow key={book._id}>
               <TableCell>{book.title}</TableCell>
               <TableCell>{book.author}</TableCell>
               <TableCell>{book.genre}</TableCell>
@@ -43,7 +57,7 @@ const AllBooks = () => {
               <TableCell className="text-right">
                 <Button className="bg-yellow-500 mx-2">Borrow</Button>
                 <Button className="bg-blue-500 mx-2">Edit</Button>
-                <Button className="bg-red-500">Delete</Button>
+                <Button className="bg-red-500" onClick={() => handleDelete(book._id)}>Delete</Button>
               </TableCell>
             </TableRow>
           ))}

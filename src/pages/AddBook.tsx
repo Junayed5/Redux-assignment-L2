@@ -7,12 +7,23 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { usePostBookMutation } from "@/redux/api/baseApi";
 import { useForm } from "react-hook-form";
 
 const AddBook = () => {
-  const form = useForm();
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const form = useForm();   
+  const [postBook] = usePostBookMutation();
+
+  const onSubmit = async(data: any) => {
+    const bookData = {
+      title: data.title,
+      author: data.author,
+      genre: data.genre.toUpperCase(),
+      isbn: parseInt(data.isbn),
+      copies: data.copies,
+    };
+    const result = await postBook(bookData);
+    console.log('inside submit',result)
   };
   return (
     <div>
