@@ -1,3 +1,4 @@
+import BookDetails from "@/components/popup/BookDetails";
 import PopupModal from "@/components/popup/Popup";
 import UpdatePopupModal from "@/components/popup/UpdatePopup";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,10 @@ const AllBooks = () => {
   const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isOpenBookDetails, setIsOpenBookDetails] = useState<any>(false);
   const [borrowId, setBorrowId] = useState<string | null>(null);
   const [updateBook, setBook] = useState<any>(null);
+  const [detailBook, setDetailBook] = useState<any>(null);
 
   const openModal = (id: string) => {
     setBorrowId(id);
@@ -32,8 +35,13 @@ const AllBooks = () => {
     setBook(book);
     setIsUpdateModalOpen(true);
   };
+  const openBookDetailsModal = (book: any) => {
+    setDetailBook(book);
+    setIsOpenBookDetails(true);
+  };
   const closeModal = () => setIsModalOpen(false);
   const closeUpdateModal = () => setIsUpdateModalOpen(false);
+  const closeBookDetailsModal = () => setIsOpenBookDetails(false);
   const { data, isLoading, error } = useGetAllBooksQuery(undefined);
   const [deleteBook, {data: deleteData, isLoading: isDeleting}] = useDeleteBookMutation();
   const books = data?.data || [];
@@ -110,7 +118,7 @@ const AllBooks = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen">
       <h1 className="text-3xl font-bold text-center my-5 underline text-gray-700">
         All Books
       </h1>
@@ -136,7 +144,7 @@ const AllBooks = () => {
               <TableCell>{book.isbn}</TableCell>
               <TableCell>{book.copies}</TableCell>
               <TableCell>
-                {book.available === true ? "Available" : "Not Available"}
+                {book.available === true ? "Available" : "Unavailable"}
               </TableCell>
               <TableCell className="text-right">
                 <Button
@@ -153,10 +161,16 @@ const AllBooks = () => {
                   Edit
                 </Button>
                 <Button
-                  className="bg-red-500"
+                  className="bg-red-500 mx-2"
                   onClick={() => handleDelete(book._id)}
                 >
                   Delete
+                </Button>
+                <Button
+                  className="bg-green-500"
+                  onClick={() => openBookDetailsModal(book)}
+                >
+                  View Details
                 </Button>
               </TableCell>
             </TableRow>
@@ -167,6 +181,11 @@ const AllBooks = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         borrowId={borrowId}
+      />
+      <BookDetails
+        isOpen={isOpenBookDetails}
+        onClose={closeBookDetailsModal}
+        book={detailBook}
       />
       <UpdatePopupModal
         isOpen={isUpdateModalOpen}

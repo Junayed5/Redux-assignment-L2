@@ -23,7 +23,7 @@ const BorrowBook = () => {
   console.log(borrows);
 
   return (
-    <div>
+    <div className="min-h-screen">
       <h1 className="text-3xl font-bold text-center my-5 underline">Borrow Book</h1>
 
       <Table className="w-3/5 mx-auto my-20">

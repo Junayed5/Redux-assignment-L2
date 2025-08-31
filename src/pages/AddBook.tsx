@@ -10,10 +10,12 @@ import {
 import { usePostBookMutation } from "@/redux/api/baseApi";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const AddBook = () => {
   const form = useForm();
   const [postBook] = usePostBookMutation();
+  const navigate = useNavigate();
 
   const onSubmit = async (data: any) => {
     const bookData = {
@@ -27,11 +29,13 @@ const AddBook = () => {
     if (result?.data?.success === true) {
       toast.success(result.data.message);
     } else if (result?.error) {
-      toast.error(result?.error?.data?.message);
+      toast.error("Something went wrong");
     }
+
+    navigate("/books");
   };
   return (
-    <div>
+    <div className="min-h-screen">
       <h1 className="text-3xl font-bold text-center my-5 underline text-gray-700">
         Add A New Book
       </h1>
@@ -40,7 +44,7 @@ const AddBook = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 w-1/5 border rounded-md p-4 mx-auto"
+            className="space-y-8 w-full md:w-1/5 border rounded-md p-4 mx-auto"
           >
             <FormField
               control={form.control}

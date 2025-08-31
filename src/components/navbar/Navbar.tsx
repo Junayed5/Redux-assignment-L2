@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 
 const Navbar = () => {
@@ -100,24 +100,24 @@ const Navbar = () => {
         id="mobile-menu"
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <a
-            href="/all-books"
+          <Link
+            to="/books"
             className="text-gray-700 hover:bg-indigo-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-300"
           >
             All Books
-          </a>
-          <a
-            href="/add-book"
+          </Link>
+          <Link
+            to="/create-book"
             className="text-gray-700 hover:bg-indigo-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-300"
           >
             Add Book
-          </a>
-          <a
-            href="/borrow-summary"
+          </Link>
+          <Link
+            to="/borrow-summary"
             className="text-gray-700 hover:bg-indigo-600 hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-300"
           >
             Borrow Summary
-          </a>
+          </Link>
         </div>
       </div>
     </nav>

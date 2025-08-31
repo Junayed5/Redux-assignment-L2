@@ -10,6 +10,7 @@ import {
 import { useCreateBorrowMutation } from "@/redux/api/baseApi";
 import { Button } from "../ui/button";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const PopupModal = ({
   isOpen,
@@ -21,7 +22,7 @@ const PopupModal = ({
   borrowId: string | null;
 }) => {
   const form = useForm();
-
+  const navigate = useNavigate();
   const [createBorrow] = useCreateBorrowMutation();
   const onSubmit = async (data: any) => {
     const borrowBook = {
@@ -33,10 +34,11 @@ const PopupModal = ({
     if (res?.data?.success === true) {
       toast.success(res.data.message);
     } else if (res?.error) {
-      toast.error(res?.error?.data?.message);
+      toast.error("Something went wrong");
     }
     onClose();
     form.reset();
+    navigate("/borrow-summary");
   };
 
   if (!isOpen) {
