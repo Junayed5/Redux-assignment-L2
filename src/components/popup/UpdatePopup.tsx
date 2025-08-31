@@ -8,7 +8,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Button } from "../ui/button";// adjust import path
+import { Button } from "../ui/button"; // adjust import path
+import { useUpdateBookMutation } from "@/redux/api/baseApi";
+import toast from "react-hot-toast";
 
 type UpdatePopupModalProps = {
   isOpen: boolean;
@@ -17,9 +19,7 @@ type UpdatePopupModalProps = {
 };
 
 const UpdatePopupModal = ({ isOpen, onClose, book }: UpdatePopupModalProps) => {
-  // 1. RTK Query mutation
-
-  // 2. React Hook Form setup with defaultValues
+  const [updateBook, { isLoading }] = useUpdateBookMutation();
   const form = useForm({
     defaultValues: {
       title: "",
@@ -32,7 +32,6 @@ const UpdatePopupModal = ({ isOpen, onClose, book }: UpdatePopupModalProps) => {
 
   const { reset } = form;
 
-  // 3. Reset form with book values whenever "book" changes
   useEffect(() => {
     if (book) {
       reset({
@@ -45,21 +44,22 @@ const UpdatePopupModal = ({ isOpen, onClose, book }: UpdatePopupModalProps) => {
     }
   }, [book, reset]);
 
-  // 4. Submit handler
-  const onSubmit = async (data: any) => {
-    // try {
-    //   await updateBookMutation({
-    //     id: book._id, // your book id
-    //     book: data,
-    //   }).unwrap();
-
-    //   console.log("Book updated:", data);
-    //   onClose();
-    //   form.reset(); // clear form after update
-    // } catch (err) {
-    //   console.error("Update failed:", err);
-    // }
-    console.log(data);
+  const onSubmit = async (updateBookData: any) => {
+    try {
+      const result = await updateBook({
+        id: book._id, // your book id
+        book: { ...updateBookData, available: updateBookData.copies > 0 ? true : false },
+      }).unwrap();
+      if (result?.success === true) {
+        toast.success(result.message);
+      } else if (result?.error) {
+        toast.error(result?.error?.data?.message);
+      }
+      onClose();
+      form.reset(); // clear form after update
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
 
   if (!isOpen) return null;
@@ -201,7 +201,7 @@ const UpdatePopupModal = ({ isOpen, onClose, book }: UpdatePopupModalProps) => {
                 // disabled={isLoading}
                 className="inline-flex w-full justify-center rounded-lg bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700 transition-transform hover:scale-105"
               >
-                {/* {isLoading ? "Updating..." : "Update Book"} */}Update Book
+                {isLoading ? "Updating..." : "Update Book"}
               </Button>
             </div>
           </form>

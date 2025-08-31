@@ -14,8 +14,11 @@ import {
   useGetAllBooksQuery,
 } from "@/redux/api/baseApi";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const AllBooks = () => {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteOpen, setDeleteOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [borrowId, setBorrowId] = useState<string | null>(null);
@@ -32,7 +35,7 @@ const AllBooks = () => {
   const closeModal = () => setIsModalOpen(false);
   const closeUpdateModal = () => setIsUpdateModalOpen(false);
   const { data, isLoading, error } = useGetAllBooksQuery(undefined);
-  const [deleteBook] = useDeleteBookMutation();
+  const [deleteBook, {data: deleteData, isLoading: isDeleting}] = useDeleteBookMutation();
   const books = data?.data || [];
 
   if (isLoading) {
@@ -43,14 +46,68 @@ const AllBooks = () => {
     return <div>Error loading books</div>;
   }
 
+  if (deleteData?.success) {
+    toast.success(deleteData?.message);
+  }
   const handleDelete = async (id: string) => {
-    const result = await deleteBook(id);
-    console.log("inside delete", result);
+    setDeleteOpen(true);
+    setDeleteId(id);
+  };
+  type DeleteConfirmationModalProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    itemName?: string; // optional (like "book" or "user")
   };
 
   // const handleBorrow = async (id: string) => {
   //   console.log(id);
   // };
+
+  const DeleteConfirmationModal = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    itemName = "item",
+  }: DeleteConfirmationModalProps) => {
+    if (!isOpen) return null;
+
+    return (
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative m-4 w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-lg"
+        >
+          <h3 className="text-lg font-semibold text-gray-800">
+            Delete {itemName}?
+          </h3>
+          <p className="mt-2 text-sm text-gray-600">
+            Are you sure you want to delete this {itemName}? This action cannot
+            be undone.
+          </p>
+
+          {/* Buttons */}
+          <div className="mt-6 flex justify-center gap-3">
+            <Button
+              onClick={onClose}
+              className="rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={onConfirm}
+              className="rounded-md bg-red-600 text-white hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -89,7 +146,12 @@ const AllBooks = () => {
                   Borrow
                 </Button>
 
-                <Button className="bg-blue-500 mx-2" onClick={() => openUpdateModal(book)}>Edit</Button>
+                <Button
+                  className="bg-blue-500 mx-2"
+                  onClick={() => openUpdateModal(book)}
+                >
+                  Edit
+                </Button>
                 <Button
                   className="bg-red-500"
                   onClick={() => handleDelete(book._id)}
@@ -110,6 +172,15 @@ const AllBooks = () => {
         isOpen={isUpdateModalOpen}
         onClose={closeUpdateModal}
         book={updateBook}
+      />
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={() => {
+          deleteBook(deleteId); // call your RTK mutation here
+          setDeleteOpen(false);
+        }}
+        itemName="book"
       />
     </div>
   );

@@ -9,6 +9,7 @@ import {
 } from "../ui/form";
 import { useCreateBorrowMutation } from "@/redux/api/baseApi";
 import { Button } from "../ui/button";
+import toast from "react-hot-toast";
 
 const PopupModal = ({
   isOpen,
@@ -29,6 +30,11 @@ const PopupModal = ({
     };
     const res = await createBorrow(borrowBook);
     console.log(res);
+    if (res?.data?.success === true) {
+      toast.success(res.data.message);
+    } else if (res?.error) {
+      toast.error(res?.error?.data?.message);
+    }
     onClose();
     form.reset();
   };

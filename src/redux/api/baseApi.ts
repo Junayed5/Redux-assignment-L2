@@ -17,13 +17,15 @@ export const booksApi = createApi({
         method: "POST",
         body: book,
       }),
+      invalidatesTags: ["Books"],
     }),
     updateBook: builder.mutation({
-      query: ({id, book}) => ({
+      query: ({ id, book }) => ({
         url: `/books/${id}`,
-        method: "PATCH",
+        method: "PUT",
         body: book,
       }),
+      invalidatesTags: ["Books"],
     }),
     deleteBook: builder.mutation({
       query: (id) => ({
@@ -39,10 +41,10 @@ export const booksApi = createApi({
       query: (borrowBook) => ({
         url: "/borrow",
         method: "POST",
-        body: borrowBook
+        body: borrowBook,
       }),
-      invalidatesTags: ["Borrow"]
-    })
+      invalidatesTags: ["Borrow"],
+    }),
   }),
 });
 
@@ -51,5 +53,6 @@ export const {
   usePostBookMutation,
   useDeleteBookMutation,
   useGetBorrowsQuery,
-  useCreateBorrowMutation
+  useCreateBorrowMutation,
+  useUpdateBookMutation,
 } = booksApi;

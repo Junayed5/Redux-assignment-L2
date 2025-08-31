@@ -9,12 +9,13 @@ import {
 } from "@/components/ui/form";
 import { usePostBookMutation } from "@/redux/api/baseApi";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 const AddBook = () => {
-  const form = useForm();   
+  const form = useForm();
   const [postBook] = usePostBookMutation();
 
-  const onSubmit = async(data: any) => {
+  const onSubmit = async (data: any) => {
     const bookData = {
       title: data.title,
       author: data.author,
@@ -23,7 +24,11 @@ const AddBook = () => {
       copies: data.copies,
     };
     const result = await postBook(bookData);
-    console.log('inside submit',result)
+    if (result?.data?.success === true) {
+      toast.success(result.data.message);
+    } else if (result?.error) {
+      toast.error(result?.error?.data?.message);
+    }
   };
   return (
     <div>
@@ -46,6 +51,7 @@ const AddBook = () => {
                   <FormControl>
                     <input
                       type="text"
+                      required
                       className="border rounded-md h-10 p-2"
                       placeholder="title"
                       {...field}
@@ -64,6 +70,7 @@ const AddBook = () => {
                   <FormControl>
                     <input
                       type="text"
+                      required
                       className="border rounded-md h-10 p-2"
                       placeholder="author"
                       {...field}
@@ -82,6 +89,7 @@ const AddBook = () => {
                   <FormControl>
                     <input
                       type="text"
+                      required
                       className="border rounded-md h-10 p-2"
                       placeholder="genre"
                       {...field}
@@ -100,6 +108,7 @@ const AddBook = () => {
                   <FormControl>
                     <input
                       type="number"
+                      required
                       className="border rounded-md h-10 p-2"
                       placeholder="isbn"
                       {...field}
@@ -118,6 +127,7 @@ const AddBook = () => {
                   <FormControl>
                     <input
                       type="number"
+                      required
                       className="border rounded-md h-10 p-2"
                       placeholder="copies"
                       {...field}
@@ -160,7 +170,7 @@ const AddBook = () => {
                 </FormItem>
               )}
             />
-            <Button className="w-fit mx-auto" type="submit">
+            <Button className="w-full mx-auto" type="submit">
               Submit
             </Button>
           </form>
