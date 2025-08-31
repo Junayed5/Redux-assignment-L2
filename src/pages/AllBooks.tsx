@@ -1,3 +1,5 @@
+import PopupModal from "@/components/popup/Popup";
+import UpdatePopupModal from "@/components/popup/UpdatePopup";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -7,9 +9,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDeleteBookMutation, useGetAllBooksQuery } from "@/redux/api/baseApi";
+import {
+  useDeleteBookMutation,
+  useGetAllBooksQuery,
+} from "@/redux/api/baseApi";
+import { useState } from "react";
 
 const AllBooks = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [borrowId, setBorrowId] = useState<string | null>(null);
+  const [updateBook, setBook] = useState<any>(null);
+
+  const openModal = (id: string) => {
+    setBorrowId(id);
+    setIsModalOpen(true);
+  };
+  const openUpdateModal = (book: any) => {
+    setBook(book);
+    setIsUpdateModalOpen(true);
+  };
+  const closeModal = () => setIsModalOpen(false);
+  const closeUpdateModal = () => setIsUpdateModalOpen(false);
   const { data, isLoading, error } = useGetAllBooksQuery(undefined);
   const [deleteBook] = useDeleteBookMutation();
   const books = data?.data || [];
@@ -20,12 +41,16 @@ const AllBooks = () => {
 
   if (error) {
     return <div>Error loading books</div>;
-  };
+  }
 
   const handleDelete = async (id: string) => {
     const result = await deleteBook(id);
-    console.log('inside delete', result);
-  }
+    console.log("inside delete", result);
+  };
+
+  // const handleBorrow = async (id: string) => {
+  //   console.log(id);
+  // };
 
   return (
     <div>
@@ -53,16 +78,39 @@ const AllBooks = () => {
               <TableCell>{book.genre}</TableCell>
               <TableCell>{book.isbn}</TableCell>
               <TableCell>{book.copies}</TableCell>
-              <TableCell>{book.available === true ? "Available" : "Not Available"}</TableCell>
+              <TableCell>
+                {book.available === true ? "Available" : "Not Available"}
+              </TableCell>
               <TableCell className="text-right">
-                <Button className="bg-yellow-500 mx-2">Borrow</Button>
-                <Button className="bg-blue-500 mx-2">Edit</Button>
-                <Button className="bg-red-500" onClick={() => handleDelete(book._id)}>Delete</Button>
+                <Button
+                  className="bg-yellow-500 mx-2"
+                  onClick={() => openModal(book._id)}
+                >
+                  Borrow
+                </Button>
+
+                <Button className="bg-blue-500 mx-2" onClick={() => openUpdateModal(book)}>Edit</Button>
+                <Button
+                  className="bg-red-500"
+                  onClick={() => handleDelete(book._id)}
+                >
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <PopupModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        borrowId={borrowId}
+      />
+      <UpdatePopupModal
+        isOpen={isUpdateModalOpen}
+        onClose={closeUpdateModal}
+        book={updateBook}
+      />
     </div>
   );
 };
